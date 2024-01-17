@@ -52,6 +52,7 @@ main() {
         esac
     done
     check_prerequisites # call subroutine to verify client can run the script
+    find_vm_sku # call subroutine to find the azure sku for the vm
     clientgsidir="client-gsi-$(date +"%FT%T")"
     echo "$clientgsidir"
     cd "$logdir" || exit
@@ -164,6 +165,19 @@ check_prerequisites() {
     fi
 }
 
+find_vm_sku() {
+    # cd /var/lib/waagent/history
+    # unzip -p `bzgrep VmSettings.json *.zip |tail -1 |cut -d: -f1` |egrep vmSize | sed 's/"vmSize"/\n"vmSize"/g' | grep '"vmSize"' | awk -F',' '{print $1}' |tee vm_sku
+    # unzip -p `bzgrep VmSettings.json *.zip |tail -1 |cut -d: -f1` |egrep vmSize | sed 's/"vmSize"/\n"vmSize"/g' |tee VmSettings.json  
+    sudo su -
+    zip_file_containing_vmsettings=$(bzgrep VmSettings.json /var/lib/waagent/history/*.zip |tail -1 |cut -d: -f1)
+    export ZIP_FILE=$zip_file_containing_vmsettings
+    echo "$zip_file_containing_vmsettings"
+    logout
+    echo "$zip_file_containing_vmsettings"
+
+
+}
 command_divider() {
     echo "$(date +"%FT%T"): "
     echo "$(date +"%FT%T"): ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
