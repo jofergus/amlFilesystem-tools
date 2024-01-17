@@ -167,14 +167,15 @@ check_prerequisites() {
 
 find_vm_sku() {
     # cd /var/lib/waagent/history
-    # unzip -p `bzgrep VmSettings.json *.zip |tail -1 |cut -d: -f1` |egrep vmSize | sed 's/"vmSize"/\n"vmSize"/g' | grep '"vmSize"' | awk -F',' '{print $1}' |tee vm_sku
+    # unzip -p `bzgrep VmSettings.json *.zip |tail -1 |cut -d: -f1` |egrep vmSize | sed 's/"vmSize"/\n"vmSize"/g' | grep '"vmSize"' | awk -F',' '{print $1}'
     # unzip -p `bzgrep VmSettings.json *.zip |tail -1 |cut -d: -f1` |egrep vmSize | sed 's/"vmSize"/\n"vmSize"/g' |tee VmSettings.json  
-    sudo su -
-    zip_file_containing_vmsettings=$(bzgrep VmSettings.json /var/lib/waagent/history/*.zip |tail -1 |cut -d: -f1)
-    export ZIP_FILE=$zip_file_containing_vmsettings
-    echo "$zip_file_containing_vmsettings"
-    logout
-    echo "$zip_file_containing_vmsettings"
+    # zip_file_containing_vmsettings=$(bzgrep VmSettings.json /var/lib/waagent/history/*.zip |tail -1 |cut -d: -f1)
+    # echo "$zip_file_containing_vmsettings"
+    # sudo unzip -p $zipfile2 |egrep vmSize |sed 's/"vmSize"/\n"vmSize"/g' | grep '"vmSize"' | awk -F',' '{print $1}'
+    zipfile=$(sudo ls /var/lib/waagent/history |grep -E zip |xargs -0 -n 1 --null echo |grep -E _1- |tail -1)
+    zipfile_with_path="/var/lib/waagent/history/$zipfile"
+    vm_sku=$(sudo unzip -p "$zipfile_with_path" |grep -E vmSize | sed 's/"vmSize"/\n"vmSize"/g' | grep '"vmSize"' | awk -F',' '{print $1}' |cut -d: -f2 |sed 's/\"//g')
+    echo "$vm_sku"
 
 
 }
