@@ -52,7 +52,6 @@ main() {
         esac
     done
     check_prerequisites # call subroutine to verify client can run the script
-    find_vm_sku # call subroutine to find the azure sku for the vm
     clientgsidir="client-gsi-$(date +"%FT%T")"
     echo "$clientgsidir"
     cd "$logdir" || exit
@@ -67,6 +66,7 @@ main() {
     tee release  >> "$log" < /etc/os-release
     command_divider "uptime; uptime -p"
     uptime |tee uptime >> "$log"; uptime -p |tee -a uptime >> "$log"
+    find_vm_sku # call subroutine to find the azure sku for the vm
     command_divider "netstat -rn"
     netstat -rn |tee netstat_rn >> "$log"
     command_divider "netstat -Wan"
@@ -180,6 +180,7 @@ find_vm_sku() {
     vm_details=$(sudo unzip -p "$zipfile_with_path" |grep -E vmSize | sed 's/"vmSize"/\n"vmSize"/g' | grep '"vmSize"')
     echo "$vm_details" |tee vm_details >> "$log"
 }
+
 command_divider() {
     echo "$(date +"%FT%T"): "
     echo "$(date +"%FT%T"): ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
