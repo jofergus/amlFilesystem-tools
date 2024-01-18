@@ -175,9 +175,10 @@ find_vm_sku() {
     zipfile=$(sudo ls /var/lib/waagent/history |grep -E zip |xargs -0 -n 1 --null echo |grep -E _1- |tail -1)
     zipfile_with_path="/var/lib/waagent/history/$zipfile"
     vm_sku=$(sudo unzip -p "$zipfile_with_path" |grep -E vmSize | sed 's/"vmSize"/\n"vmSize"/g' | grep '"vmSize"' | awk -F',' '{print $1}' |cut -d: -f2 |sed 's/\"//g')
-    echo "$vm_sku"
-
-
+    command_divider "extracting vm sku from zip file in /var/lib/waagent/history.  Must access as root."
+    echo "$vm_sku" |tee vm_sku >> "$log"
+    vm_details=$(sudo unzip -p "$zipfile_with_path" |grep -E vmSize | sed 's/"vmSize"/\n"vmSize"/g' | grep '"vmSize"')
+    echo "$vm_details" |tee vm_details >> "$log"
 }
 command_divider() {
     echo "$(date +"%FT%T"): "
