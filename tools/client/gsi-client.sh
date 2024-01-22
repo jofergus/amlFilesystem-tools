@@ -105,6 +105,8 @@ main() {
     else
         command_divider "No /etc/fstab file."
     fi
+    command_divider "find /var/crash -ls"
+    find /var/crash -ls |tee var_crash >> "$log"
 
     local_lustre_mount=$(mount |grep -E "type lustre" |awk '{print $3}' |tail -1)
     if [ "$local_lustre_mount" ]
@@ -166,12 +168,6 @@ check_prerequisites() {
 }
 
 find_vm_sku() {
-    # cd /var/lib/waagent/history
-    # unzip -p `bzgrep VmSettings.json *.zip |tail -1 |cut -d: -f1` |egrep vmSize | sed 's/"vmSize"/\n"vmSize"/g' | grep '"vmSize"' | awk -F',' '{print $1}'
-    # unzip -p `bzgrep VmSettings.json *.zip |tail -1 |cut -d: -f1` |egrep vmSize | sed 's/"vmSize"/\n"vmSize"/g' |tee VmSettings.json  
-    # zip_file_containing_vmsettings=$(bzgrep VmSettings.json /var/lib/waagent/history/*.zip |tail -1 |cut -d: -f1)
-    # echo "$zip_file_containing_vmsettings"
-    # sudo unzip -p $zipfile2 |egrep vmSize |sed 's/"vmSize"/\n"vmSize"/g' | grep '"vmSize"' | awk -F',' '{print $1}'
     zipfile=$(sudo ls /var/lib/waagent/history |grep -E zip |xargs -0 -n 1 --null echo |grep -E _1- |tail -1)
     zipfile_with_path="/var/lib/waagent/history/$zipfile"
     vm_sku=$(sudo unzip -p "$zipfile_with_path" |grep -E vmSize | sed 's/"vmSize"/\n"vmSize"/g' | grep '"vmSize"' | awk -F',' '{print $1}' |cut -d: -f2 |sed 's/\"//g')
