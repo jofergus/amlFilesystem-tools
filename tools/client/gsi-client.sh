@@ -108,14 +108,19 @@ main() {
     command_divider "find /var/crash -ls"
     find /var/crash -ls |tee var_crash >> "$log"
 
-    local_lustre_mount=$(mount |grep -E "type lustre" |awk '{print $3}' |tail -1)
-    if [ "$local_lustre_mount" ]
+    local_lustre_mounts=$(lfs getname |awk '{print $2}')
+    if [ "$local_lustre_mounts" ]
     then
         for read_ahead_kb in /sys/devices/virtual/bdi/lustrefs-*/read_ahead_kb
         do
             command_divider "cat $read_ahead_kb"
             echo -n "$read_ahead_kb: " >> read_ahead_kb
             tee -a read_ahead_kb < "$read_ahead_kb" >> "$log"
+        done
+        for local_lustre_mount in $local_lustre_mounts
+        do
+            command_divider "lfs quota -hv $local_lustre_mount"
+            lfs quota -hv "$local_lustre_mount" |tee -a lfs_quota >> "$log"
         done
     fi
 
@@ -206,9 +211,9 @@ get_logs() {
 }
 
 display_hsm_state() {
-    if [ "$local_lustre_mount" ]
+    if [ "$local_lustre_mounts" ]
     then
-        for local_lustre_mount in $(mount |grep -E "type lustre" |awk '{print $3}')
+        for local_lustre_mount in $("$local_lustre_mounts")
         do
             command_divider "find $local_lustre_mount -type f -print0 |xargs -0 -n 1 lfs  hsm_state"
             hsm_state_file=$(echo "hsm_state$local_lustre_mount" |sed 's/\//_/g')
