@@ -102,6 +102,12 @@ main() {
     sudo sysctl -a | tee sysctl > /dev/null
     command_divider "sudo lnetctl stats show"
     sudo lnetctl stats show |tee lnetctl_stats >> "$log"
+    command_divider "lctl ping nids"
+    for nid in $(sudo lctl list_nids)
+    do 
+        echo "nid: $nid" |tee lctl_ping-nids >> "$log"
+        sudo lctl ping "$nid" |tee -a lctl_ping_nids >> "$log"
+    done
     command_divider "sudo lctl dl -t"
     sudo lctl dl -t |tee lctl_dl >> "$log"
     command_divider "mount |egrep lustre; mount"
