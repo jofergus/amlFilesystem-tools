@@ -11,19 +11,26 @@
     # ifconfig -a
     # printenv
     # lfs --version
-    # lfs df -h
+    # lfs df -h --lazy; lfs df -hi --lazy
     # lfs check all
-    # cd /var/log; tail -30 syslog
-    # cd /var/log; tar cvfz /tmp/client-gsi-2024-01-08T18:52:21/syslog.tgz syslog*
+    # lfs getname
     # sudo dmesg -T
     # sudo sysctl -a
     # sudo lnetctl stats show
+    # lctl ping nids
     # sudo lctl dl -t
     # mount |egrep lustre; mount
     # cat /etc/fstab |egrep lustre; cat /etc/fstab
-    # cat /sys/devices/virtual/bdi/lustrefs-ffffa09f150c6800/read_ahead_kb
-    # find /lustre -type f -print0 |xargs -0 -n 1 lfs  hsm_state
-
+    # sudo lctl dk dump_kernel
+    # find /var/crash -ls
+    # cat $read_ahead_kb
+    # lfs quota -hv $local_lustre_mount
+    # extracting vm sku from zip file in /var/lib/waagent/history. Must access as root.
+    # cd /var/log; tail -30 syslog
+    # cd /var/log; tar cvfz $logdir/$clientgsidir/syslog.tgz syslog*
+    # cd /var/log; sudo tail -30 messages
+    # cd /var/log; sudo tar cvfz $logdir/$clientgsidir/messages.tgz messages*
+    
 usage() {
     echo "Usage ${0##*/} [options]"
     echo "collect lustre info"
