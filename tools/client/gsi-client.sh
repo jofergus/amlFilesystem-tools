@@ -51,7 +51,9 @@ main() {
                 ;;
         esac
     done
+    
     check_prerequisites # call subroutine to verify client can run the script
+    
     clientgsidir="client-gsi-$(date +"%FT%T")"
     echo "$clientgsidir"
     cd "$logdir" || exit
@@ -66,7 +68,9 @@ main() {
     tee release  >> "$log" < /etc/os-release
     command_divider "uptime; uptime -p"
     uptime |tee uptime >> "$log"; uptime -p |tee -a uptime >> "$log"
+    
     find_vm_sku # call subroutine to find the azure sku for the vm
+    
     command_divider "netstat -rn"
     netstat -rn |tee netstat_rn >> "$log"
     command_divider "netstat -Wan"
@@ -75,16 +79,17 @@ main() {
     ifconfig -a 2>&1 |tee ifconfig_a >> "$log"
     command_divider "printenv"
     printenv |tee printenv >> "$log"
+    # lfs commands
+    command_divider "lfs --version"
+    lfs --version |tee lfs_version >> "$log"
+    command_divider "lfs df -h --lazy; lfs df -hi --lazy" # --lazy will allow command to run if an OST is having problems.
+    lfs df -h --lazy |tee lfs_df >> "$log"
+    lfs df -hi --lazy |tee -a lfs_df >> "$log"
+    command_divider "lfs check all"
+    lfs check all 2>&1 |tee lfs_check_all >> "$log"
+    command_divider "lfs getname"
+    lfs getname 2>&1 |tee lfs_getname >> "$log"
 
-    if [ -f /usr/bin/lfs ]
-    then
-        command_divider "lfs --version"
-        lfs --version |tee lfs_version >> "$log"
-        command_divider "lfs df -h"
-        lfs df -h |tee lfs_df >> "$log"
-        command_divider "lfs check all"
-        lfs check all 2>&1 |tee lfs_check_all >> "$log"
-    fi
     get_logs # subroutine to get syslog or messages files
 
     command_divider "sudo dmesg -T"
@@ -122,6 +127,8 @@ main() {
             command_divider "lfs quota -hv $local_lustre_mount"
             lfs quota -hv "$local_lustre_mount" |tee -a lfs_quota >> "$log"
         done
+    else
+        command_divider "Lustre/amlfs is not mounted by client!"
     fi
 
     if [ "$read_ahead_kb" ]
