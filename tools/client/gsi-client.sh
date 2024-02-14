@@ -75,7 +75,7 @@ main() {
     tee release  >> "$log" < /etc/os-release
     command_divider "uptime; uptime -p"
     uptime |tee uptime >> "$log"; uptime -p |tee -a uptime >> "$log"
-    
+
     find_vm_sku # call subroutine to find the azure sku for the vm
     
     command_divider "netstat -rn"
@@ -247,7 +247,6 @@ display_hsm_state() {
             find "$local_lustre_mount" -type f -print0 |xargs -0 -n 1 lfs hsm_state >> "$hsm_state_file"
             number_of_files=$(wc -l "$hsm_state_file")
             echo "Number of files: $number_of_files" |tee -a "$hsm_state_file" >> "$log"
-
         done
     else
         command_divider "Cannot find local lustre mount point.  Unable to display hsm_state."
