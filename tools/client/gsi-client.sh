@@ -83,8 +83,12 @@ main() {
     command_divider "lfs --version"
     lfs --version |tee lfs_version >> "$log"
     command_divider "lfs df -h --lazy; lfs df -hi --lazy" # --lazy will allow command to run if an OST is having problems.
-    lfs df -h --lazy |tee lfs_df >> "$log"
-    lfs df -hi --lazy |tee -a lfs_df >> "$log"
+    {
+    echo "lfs df -h (bytes)" | tee lfs_df
+    lfs df -h --lazy |tee -a lfs_df
+    echo "lfs df -hi (inodes)" |tee -a lfs_df
+    lfs df -hi --lazy |tee -a lfs_df
+     } >> "$log"
     command_divider "lfs check all"
     lfs check all 2>&1 |tee lfs_check_all >> "$log"
     command_divider "lfs getname"
@@ -164,7 +168,6 @@ check_prerequisites() {
     lfs_exists=$(which lfs)
     lctl_exists=$(which lctl)
     lnetctl_exists=$(which lnetctl)
-    # echo "lfs: " $lfs_exists "lctl: " $lctl_exists "lnetctl: " $lnetctl_exists
     if [ "$lfs_exists" ] || [ "$lctl_exists" ] || [ "$lnetctl_exists" ]
     then
         echo "Yes, Lustre client!"
