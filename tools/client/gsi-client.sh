@@ -105,7 +105,7 @@ main() {
     command_divider "lctl ping nids"
     for nid in $(sudo lctl list_nids)
     do 
-        echo "nid: $nid" |tee lctl_ping-nids >> "$log"
+        echo "nid: $nid" |tee lctl_ping_nids >> "$log"
         sudo lctl ping "$nid" |tee -a lctl_ping_nids >> "$log"
     done
     command_divider "sudo lctl dl -t"
@@ -120,6 +120,9 @@ main() {
     else
         command_divider "No /etc/fstab file."
     fi
+    command_divider "sudo lctl dk dump_kernel"
+    sudo lctl dk dump_kernel |tee -a "$log"
+    sudo chmod 666 dump_kernel
     command_divider "find /var/crash -ls"
     find /var/crash -ls |tee var_crash >> "$log"
 
