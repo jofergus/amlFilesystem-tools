@@ -121,7 +121,7 @@ main() {
         command_divider "No /etc/fstab file."
     fi
     command_divider "sudo lctl dk dump_kernel"
-    sudo lctl dk dump_kernel 2>&1 |tee -a "$log"
+    sudo lctl dk dump_kernel |tee -a "$log" > /dev/null
     sudo chmod 666 dump_kernel
     command_divider "find /var/crash -ls"
     find /var/crash -ls |tee var_crash >> "$log"
