@@ -239,7 +239,7 @@ get_logs() {
 display_hsm_state() {
     if [ "$local_lustre_mounts" ]
     then
-        for local_lustre_mount in $("$local_lustre_mounts")
+        for local_lustre_mount in $local_lustre_mounts
         do
             command_divider "find $local_lustre_mount -type f -print0 |xargs -0 -n 1 lfs  hsm_state"
             hsm_state_file=$(echo "hsm_state$local_lustre_mount" |sed 's/\//_/g')
