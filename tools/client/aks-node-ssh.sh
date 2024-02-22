@@ -24,7 +24,7 @@ main() {
     done
     ((menu_number-=1))
     echo
-    read -p "Enter number next to node 1..$menu_number" node_number
+    read -p "Enter number next to node 1..$menu_number: " node_number
     array_index=$((node_number - 1))
     aks_node="${nodes_array[$array_index]}"
     echo "$aks_node"

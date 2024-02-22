@@ -41,7 +41,7 @@ usage() {
 }
 
 main() {
-    logdir=$HOME
+    logdir=$PWD
     while getopts "hl:s" arg; do
         case $arg in
             h)
