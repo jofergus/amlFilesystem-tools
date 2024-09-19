@@ -19,13 +19,13 @@
     # sudo lnetctl stats show
     # lctl ping nids
     # sudo lctl dl -t
-    # mount |egrep lustre; mount
+    # mount -t lustre; mount
     # cat /etc/fstab |egrep lustre; cat /etc/fstab
     # sudo lctl dk dump_kernel
     # find /var/crash -ls
     # cat $read_ahead_kb
     # lfs quota -hv $local_lustre_mount
-    # extracting vm sku from zip file in /var/lib/waagent/history. Must access as root.
+    # extracting vm vmSize and sku from file /run/cloud-init/instance-data.json.
     # cd /var/log; tail -30 syslog
     # cd /var/log; tar cvfz $logdir/$clientgsidir/syslog.tgz syslog*
     # cd /var/log; sudo tail -30 messages
@@ -117,8 +117,8 @@ main() {
     done
     command_divider "sudo lctl dl -t"
     sudo lctl dl -t |tee lctl_dl >> "$log"
-    command_divider "mount |egrep lustre; mount"
-    mount |grep -E lustre |tee mount_output >> "$log"; mount >> mount_output
+    command_divider "mount -t lustre; mount"
+    mount -t lustre |tee mount_output >> "$log"; mount >> mount_output
     if [ -f /etc/fstab ]
     then
         command_divider "cat /etc/fstab |egrep lustre; cat /etc/fstab"
@@ -199,13 +199,16 @@ check_prerequisites() {
 }
 
 find_vm_sku() {
-    zipfile=$(sudo ls /var/lib/waagent/history |grep -E zip |xargs -0 -n 1 --null echo |grep -E _1- |tail -1)
-    zipfile_with_path="/var/lib/waagent/history/$zipfile"
-    vm_sku=$(sudo unzip -p "$zipfile_with_path" |grep -E vmSize | sed 's/"vmSize"/\n"vmSize"/g' | grep '"vmSize"' | awk -F',' '{print $1}' |cut -d: -f2 |sed 's/\"//g')
-    command_divider "extracting vm sku from zip file in /var/lib/waagent/history.  Must access as root."
-    echo "$vm_sku" |tee vm_sku >> "$log"
-    vm_details=$(sudo unzip -p "$zipfile_with_path" |grep -E vmSize | sed 's/"vmSize"/\n"vmSize"/g' | grep '"vmSize"')
-    echo "$vm_details" |tee vm_details >> "$log"
+    if [[ -f /run/cloud-init/instance-data.json ]]
+    then
+        vm_size=$(grep -E vmSize /run/cloud-init/instance-data.json |cut -d: -f2 | awk -F',' '{print $1}' |cut -d: -f2 |sed 's/\"//g' | sed 's/^ //')
+        vm_sku=$(grep -E -m 1 sku /run/cloud-init/instance-data.json  |cut -d: -f2 | awk -F',' '{print $1}' |cut -d: -f2 |sed 's/\"//g' | sed 's/^ //')
+        command_divider "extracting vm vmSize and sku from file /run/cloud-init/instance-data.json."
+        echo "$vm_sku" |tee vm_sku >> "$log"
+        echo "$vm_size" |tee vm_size >> "$log"
+    else
+        command_divider "Skipping vmSize and sku as file /run/cloud-init/instance-data.json is NOT found."
+    fi
 }
 
 command_divider() {
