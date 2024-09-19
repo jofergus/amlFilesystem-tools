@@ -25,7 +25,8 @@
     # find /var/crash -ls
     # cat $read_ahead_kb
     # lfs quota -hv $local_lustre_mount
-    # extracting vm vmSize and sku from file /run/cloud-init/instance-data.json.
+    # extracting vm vmSize and sku from file /run/cloud-init/instance-data.json
+    # cat /run/cloud-init/instance-data.json
     # cd /var/log; tail -30 syslog
     # cd /var/log; tar cvfz $logdir/$clientgsidir/syslog.tgz syslog*
     # cd /var/log; sudo tail -30 messages
@@ -206,6 +207,8 @@ find_vm_sku() {
         command_divider "extracting vm vmSize and sku from file /run/cloud-init/instance-data.json."
         echo "$vm_sku" |tee vm_sku >> "$log"
         echo "$vm_size" |tee vm_size >> "$log"
+        command_divider "cat /run/cloud-init/instance-data.json"
+        tee instance-data.json < /run/cloud-init/instance-data.json > /dev/null
     else
         command_divider "Skipping vmSize and sku as file /run/cloud-init/instance-data.json is NOT found."
     fi
