@@ -17,7 +17,8 @@
     # sudo dmesg -T
     # sudo sysctl -a
     # sudo lnetctl stats show
-    # lctl ping nids
+    # sudo lctl list_nids
+    # sudo lctl ping nids
     # sudo lctl dl -t
     # mount -t lustre; mount
     # cat /etc/fstab |egrep lustre; cat /etc/fstab
@@ -110,6 +111,8 @@ main() {
     sudo sysctl -a | tee sysctl > /dev/null
     command_divider "sudo lnetctl stats show"
     sudo lnetctl stats show |tee lnetctl_stats >> "$log"
+    command_divider "sudo lctl list_nids"
+    sudo lctl list_nids |tee lctl_list_nids >> "$log"
     command_divider "lctl ping nids"
     for nid in $(sudo lctl list_nids)
     do 
