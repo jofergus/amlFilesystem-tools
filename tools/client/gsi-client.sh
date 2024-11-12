@@ -131,12 +131,17 @@ main() {
     else
         command_divider "No /etc/fstab file."
     fi
-    command_divider "sudo lctl dk dump_kernel"
-    sudo lctl dk dump_kernel |tee -a "$log" > /dev/null
-    sudo chmod 666 dump_kernel
-    command_divider "find /var/crash -ls"
-    find /var/crash -ls |tee var_crash >> "$log"
-
+    secure_boot=$(mokutil --sb-state |cut -d" " -f2)
+    if [ "$secure_boot" == "enabled" ]
+    then
+        command_divider "Secure boot is enabled.  Cannot run sudo lctl dk dump_kernel"
+    else
+        command_divider "sudo lctl dk dump_kernel"
+        sudo lctl dk dump_kernel |tee -a "$log" > /dev/null
+        sudo chmod 666 dump_kernel
+        command_divider "find /var/crash -ls"
+        find /var/crash -ls |tee var_crash >> "$log"
+    fi
     local_lustre_mounts=$(lfs getname |awk '{print $2}')
     if [ "$local_lustre_mounts" ]
     then
