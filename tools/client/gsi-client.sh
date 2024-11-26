@@ -17,6 +17,10 @@
     # sudo dmesg -T
     # sudo sysctl -a
     # sudo lnetctl stats show
+    # sudo lnetctl net show
+    # sudo lnetctl peer show
+    # sudo lnetctl global show
+    # sudo lctl --net tcp conn_list
     # sudo lctl list_nids
     # sudo lctl ping nids
     # sudo lctl dl -t
@@ -109,18 +113,31 @@ main() {
     sudo dmesg -T |tee dmesg > /dev/null
     command_divider "sudo sysctl -a"
     sudo sysctl -a | tee sysctl > /dev/null
+    command_divider "sudo lnetctl global show"
+    sudo lnetctl global show |tee lnetctl_global >> "$log"
     command_divider "sudo lnetctl stats show"
     sudo lnetctl stats show |tee lnetctl_stats >> "$log"
+    command_divider "sudo lnetctl net show -v"
+    sudo lnetctl net show -v |tee lnetctl_net >> "$log"
+    command_divider "sudo lnetctl peer show -v"
+    sudo lnetctl peer show -v |tee lnetctl_peer >> "$log"
     command_divider "sudo lctl list_nids"
     sudo lctl list_nids |tee lctl_list_nids >> "$log"
     command_divider "lctl ping nids"
-    for nid in $(sudo lctl list_nids)
+    network=$(sudo lctl list_nids |cut -d@ -f2)
+    # for i in $(sudo lctl --net tcp peer_list |cut -d- -f2 |cut -d" " -f1 |sort) ; do echo "nid: $i"; sudo lctl ping $i 2>&1 ; echo " " ; done |tee pingnids >> raylogs
+    for nid in $(sudo lctl --net "$network" peer_list |cut -d- -f2 |cut -d" " -f1 |sort) 
     do 
-        echo "nid: $nid" |tee lctl_ping_nids >> "$log"
-        sudo lctl ping "$nid" |tee -a lctl_ping_nids >> "$log"
-    done
+        # echo "nid: $nid" |tee lctl_ping_nids >> "$log"
+        echo "nid: $nid"
+        #sudo lctl ping "$nid" 2>&1 |tee -a lctl_ping_nids >> "$log"
+        sudo lctl ping "$nid" 2>&1
+        echo " "
+    done | tee lctl_ping_nids >> "$log"
     command_divider "sudo lctl dl -t"
     sudo lctl dl -t |tee lctl_dl >> "$log"
+    command_divider "sudo lctl --net $network conn_list |sort"
+    sudo lctl --net "$network" conn_list |sort |tee lctl_conn_list >> "$log"
     command_divider "mount -t lustre; mount"
     mount -t lustre |tee mount_output >> "$log"; mount >> mount_output
     if [ -f /etc/fstab ]
