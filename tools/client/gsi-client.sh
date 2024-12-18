@@ -6,6 +6,7 @@
     # uname -a
     # cat /etc/os-release
     # uptime; uptime -p
+    # top -b -n1 
     # netstat -rn
     # netstat -Wan
     # ifconfig -a
@@ -20,6 +21,7 @@
     # sudo lnetctl net show
     # sudo lnetctl peer show
     # sudo lnetctl global show
+    # sudo lnetctl export
     # sudo lctl --net tcp conn_list
     # sudo lctl list_nids
     # sudo lctl ping nids
@@ -47,7 +49,7 @@ usage() {
 }
 
 main() {
-    logdir=$PWD
+    logdir=$HOME
     while getopts "hl:s" arg; do
         case $arg in
             h)
@@ -81,6 +83,9 @@ main() {
     tee release  >> "$log" < /etc/os-release
     command_divider "uptime; uptime -p"
     uptime |tee uptime >> "$log"; uptime -p |tee -a uptime >> "$log"
+    command_divider "top -b -n1"
+    top -b -n1 > top_output
+    top -b -n1 |head -20 >> "$log"
 
     find_vm_sku # call subroutine to find the azure sku for the vm
     
@@ -121,6 +126,8 @@ main() {
     sudo lnetctl net show -v |tee lnetctl_net >> "$log"
     command_divider "sudo lnetctl peer show -v"
     sudo lnetctl peer show -v |tee lnetctl_peer >> "$log"
+    command_divider "sudo lnetctl export"
+    sudo lnetctl export |tee lnetctl_export >> "$log"
     command_divider "sudo lctl list_nids"
     sudo lctl list_nids |tee lctl_list_nids >> "$log"
     command_divider "lctl ping nids"
