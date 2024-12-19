@@ -83,7 +83,7 @@ main() {
     tee release  >> "$log" < /etc/os-release
     command_divider "uptime; uptime -p"
     uptime |tee uptime >> "$log"; uptime -p |tee -a uptime >> "$log"
-    command_divider "top -b -n1"
+    command_divider "top -b -n1; top -b -n1 |head -20"
     top -b -n1 > top_output
     top -b -n1 |head -20 >> "$log"
 
